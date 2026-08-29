@@ -1,5 +1,14 @@
 import os
 from functools import lru_cache
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Search for .env in backend/ directory or root directory
+_backend_env = Path(__file__).resolve().parent.parent / ".env"
+if _backend_env.exists():
+    load_dotenv(dotenv_path=_backend_env)
+load_dotenv()
 
 from pydantic_ai import Agent
 from pydantic_ai.providers.openai import OpenAIProvider
@@ -22,18 +31,25 @@ Rules:
 - Express delays with ##N or ##[M:N]. Use |-> (overlapped) or |=> (non-overlapped) deliberately.
 - Every monitored signal must appear in the SVA.
 - python_test_stub must be a self-contained cocotb test: `import cocotb`, an @cocotb.test() async
-  function, a Clock, drive stimulus, and assert on the outcome.
+  function, a Clock, drive stimulus, and assert on the outcome. Return raw executable Python code only.
 - Choose conventional names (clk, rst_n) when the rule does not specify them.
 - If the rule is ambiguous, pick the most conventional interpretation and state it in `explanation`."""
 
+FREE_FALLBACK_MODELS = [
+    "cohere/north-mini-code:free",
+    "nvidia/nemotron-3.5-lightning:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "minimax/minimax-m3.1-flash:free",
+    "google/gemma-4-31b-it:free",
+]
 
-@lru_cache(maxsize=1)
-def get_agent() -> Agent:
+
+def create_agent(model_name: str) -> Agent:
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
         raise RuntimeError("OPENROUTER_API_KEY is not configured")
     model = ChatModel(
-        os.getenv("MODEL_NAME", "meta-llama/llama-3.3-70b-instruct"),
+        model_name,
         provider=OpenAIProvider(base_url="https://openrouter.ai/api/v1", api_key=api_key),
     )
     try:
@@ -42,13 +58,36 @@ def get_agent() -> Agent:
         return Agent(model, result_type=AssertionResult, system_prompt=SYSTEM_PROMPT, retries=2)
 
 
+@lru_cache(maxsize=8)
+def get_agent(model_name: str | None = None) -> Agent:
+    target = model_name or os.getenv("MODEL_NAME", "nvidia/nemotron-3.5-lightning:free")
+    return create_agent(target)
+
+
 async def generate_assertion(spec: str) -> AssertionResult:
     # If MOCK_LLM is enabled or mock mode requested
     if os.getenv("MOCK_LLM", "false").lower() in ("true", "1", "yes"):
         return _mock_assertion(spec)
 
-    result = await get_agent().run(f'Protocol rule:\n"{spec}"')
-    return result.output if hasattr(result, "output") else result.data
+    last_error = None
+    primary = os.getenv("MODEL_NAME", "nvidia/nemotron-3.5-lightning:free")
+    models_to_try = []
+    for m in [primary] + FREE_FALLBACK_MODELS:
+        if m not in models_to_try:
+            models_to_try.append(m)
+
+    for m in models_to_try:
+        try:
+            agent = get_agent(m)
+            result = await agent.run(f'Protocol rule:\n"{spec}"')
+            return result.output if hasattr(result, "output") else result.data
+        except Exception as e:
+            last_error = e
+            # Try next free model in case of upstream 429 / provider failure
+            continue
+
+    if last_error:
+        raise last_error
 
 
 def _mock_assertion(spec: str) -> AssertionResult:

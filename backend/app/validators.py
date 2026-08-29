@@ -8,8 +8,13 @@ def structural_checks(r: AssertionResult) -> dict[str, bool]:
     sva = r.formal_sva
     clock_name = re.sub(r"\W", "", r.clock)
 
+    stub = r.python_test_stub.strip()
+    if stub.startswith("```"):
+        stub = re.sub(r"^```(?:python)?\s*", "", stub, flags=re.IGNORECASE)
+        stub = re.sub(r"```\s*$", "", stub)
+
     try:
-        ast.parse(r.python_test_stub)
+        ast.parse(stub)
         stub_parses = True
     except SyntaxError:
         stub_parses = False
