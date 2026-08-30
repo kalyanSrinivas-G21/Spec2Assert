@@ -1,4 +1,5 @@
 import os
+import re
 from functools import lru_cache
 from pathlib import Path
 
@@ -64,6 +65,14 @@ def get_agent(model_name: str | None = None) -> Agent:
     return create_agent(target)
 
 
+def _clean_markdown_fences(code: str) -> str:
+    cleaned = code.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```(?:[a-zA-Z0-9_-]+)?\s*\n?", "", cleaned)
+        cleaned = re.sub(r"\n?```\s*$", "", cleaned)
+    return cleaned.strip()
+
+
 async def generate_assertion(spec: str) -> AssertionResult:
     # If MOCK_LLM is enabled or mock mode requested
     if os.getenv("MOCK_LLM", "false").lower() in ("true", "1", "yes"):
@@ -79,8 +88,14 @@ async def generate_assertion(spec: str) -> AssertionResult:
     for m in models_to_try:
         try:
             agent = get_agent(m)
-            result = await agent.run(f'Protocol rule:\n"{spec}"')
-            return result.output if hasattr(result, "output") else result.data
+            result = await agent.run(
+                f'Protocol rule:\n"{spec}"',
+                model_settings={"temperature": 0.0},
+            )
+            data = result.output if hasattr(result, "output") else result.data
+            data.formal_sva = _clean_markdown_fences(data.formal_sva)
+            data.python_test_stub = _clean_markdown_fences(data.python_test_stub)
+            return data
         except Exception as e:
             last_error = e
             # Try next free model in case of upstream 429 / provider failure

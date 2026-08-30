@@ -56,5 +56,9 @@ def recent(limit: int = 10) -> list[dict]:
 
 def get(item_id: int) -> dict | None:
     with conn() as c:
-        row = c.execute("SELECT result_json FROM history WHERE id = ?", (item_id,)).fetchone()
-        return json.loads(row["result_json"]) if row else None
+        row = c.execute("SELECT spec, result_json FROM history WHERE id = ?", (item_id,)).fetchone()
+        if not row:
+            return None
+        data = json.loads(row["result_json"])
+        data["spec"] = row["spec"]
+        return data

@@ -1,5 +1,6 @@
 export interface AssertionResult {
   id: number | null;
+  spec?: string;
   rule_name: string;
   clock: string;
   reset: string;

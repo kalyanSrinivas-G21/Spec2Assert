@@ -4,6 +4,10 @@ import React from "react";
 import { Cpu, Terminal, Sparkles, ExternalLink, ShieldCheck } from "lucide-react";
 
 export function Navbar() {
+  const apiDocsUrl = process.env.NEXT_PUBLIC_API_URL
+    ? `${process.env.NEXT_PUBLIC_API_URL}/docs`
+    : "http://localhost:8000/docs";
+
   return (
     <header className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur sticky top-0 z-50 px-6 py-3.5">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -29,7 +33,7 @@ export function Navbar() {
           </div>
 
           <a
-            href="http://localhost:8000/docs"
+            href={apiDocsUrl}
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-medium text-zinc-300 transition-colors"

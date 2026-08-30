@@ -41,14 +41,19 @@ app.add_middleware(
 _hits: dict[str, deque] = defaultdict(deque)
 
 
-def rate_limit(request: Request, limit: int = 10, window: int = 60) -> None:
-    ip = request.client.host if request.client else "unknown"
+def rate_limit(request: Request, limit: int = 20, window: int = 60) -> None:
+    forwarded = request.headers.get("x-forwarded-for")
+    ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "unknown")
+
     now = time.time()
     q = _hits[ip]
     while q and now - q[0] > window:
         q.popleft()
     if len(q) >= limit:
-        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again in a minute.")
+        raise HTTPException(
+            status_code=429,
+            detail="Rate limit reached. Please wait 60s before compiling another assertion.",
+        )
     q.append(now)
 
 
@@ -69,7 +74,11 @@ async def generate(body: GenerateRequest, request: Request):
 
     checks = structural_checks(result)
     passed = all_passed(checks)
-    payload = result.model_dump() | {"deterministic_check_passed": passed, "checks": checks}
+    payload = result.model_dump() | {
+        "spec": body.spec,
+        "deterministic_check_passed": passed,
+        "checks": checks,
+    }
     payload["id"] = db.save(body.spec, result.rule_name, passed, payload)
     return payload
 

@@ -22,5 +22,6 @@ class AssertionResult(BaseModel):
 
 class GenerateResponse(AssertionResult):
     id: int | None = None
+    spec: str | None = None
     deterministic_check_passed: bool
     checks: dict[str, bool]

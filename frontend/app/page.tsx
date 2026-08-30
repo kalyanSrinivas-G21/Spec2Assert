@@ -92,9 +92,11 @@ export default function Home() {
     try {
       const item = await getHistoryItem(id);
       setResult(item);
-      setSpec(item.rule_name ? `${item.rule_name} rule: ${item.explanation}` : spec);
+      if (item.spec) {
+        setSpec(item.spec); // Restores the exact original user input
+      }
     } catch (err: any) {
-      setError(`Failed to retrieve compilation #${id}: ${err.message}`);
+      setError(`Failed to load compilation #${id}: ${err.message}`);
     }
   };
 
