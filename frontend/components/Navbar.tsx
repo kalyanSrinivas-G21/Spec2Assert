@@ -3,7 +3,11 @@
 import React from "react";
 import { Cpu, Terminal, ExternalLink, ShieldCheck, GitCommit } from "lucide-react";
 
-export default function Navbar() {
+interface NavbarProps {
+  isSynthesizing?: boolean;
+}
+
+export default function Navbar({ isSynthesizing = false }: NavbarProps) {
   const apiDocsUrl = process.env.NEXT_PUBLIC_API_URL
     ? `${process.env.NEXT_PUBLIC_API_URL}/docs`
     : "http://localhost:8000/docs";
@@ -26,13 +30,27 @@ export default function Navbar() {
 
       {/* Center: System Status Indicator */}
       <div className="hidden md:flex items-center gap-4 text-zinc-400">
-        <div className="flex items-center gap-1.5 border border-zinc-800 bg-zinc-900/80 px-2.5 py-1">
-          <div className="w-1.5 h-1.5 bg-emerald-500 animate-pulse" />
-          <span className="text-[11px] text-zinc-300">ENGINE: DETERMINISTIC (0.0T)</span>
+        <div
+          className={`flex items-center gap-1.5 border px-2.5 py-1 transition-colors ${
+            isSynthesizing
+              ? "border-blue-500/80 bg-blue-950/40 text-blue-300 shadow-[0_0_10px_rgba(0,102,255,0.2)]"
+              : "border-zinc-800 bg-zinc-900/80 text-zinc-300"
+          }`}
+        >
+          <div
+            className={`w-1.5 h-1.5 ${
+              isSynthesizing ? "bg-blue-400 animate-ping" : "bg-emerald-500 animate-pulse"
+            }`}
+          />
+          <span className="text-[11px] font-semibold">
+            {isSynthesizing
+              ? "ENGINE: ACTIVE_SYNTHESIS // CORE_01_RUNNING"
+              : "ENGINE: DETERMINISTIC (0.0T)"}
+          </span>
         </div>
         <div className="flex items-center gap-1.5 text-zinc-500 text-[11px]">
           <GitCommit className="w-3.5 h-3.5" />
-          <span>AST_VERIFIED</span>
+          <span>{isSynthesizing ? "AST_PARSING" : "AST_VERIFIED"}</span>
         </div>
       </div>
 

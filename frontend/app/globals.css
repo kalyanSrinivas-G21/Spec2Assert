@@ -28,3 +28,16 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #3f3f46;
 }
+
+@keyframes waveSweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+.animate-wave-sweep {
+  animation: waveSweep 2s ease-in-out infinite;
+}
