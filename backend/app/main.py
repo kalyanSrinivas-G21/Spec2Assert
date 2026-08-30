@@ -65,8 +65,12 @@ def health():
 @app.post("/api/generate", response_model=GenerateResponse, tags=["generate"])
 async def generate(body: GenerateRequest, request: Request):
     rate_limit(request)
+    custom_key = request.headers.get("x-openrouter-key")
     try:
-        result = await generate_assertion(body.spec)
+        if custom_key:
+            result = await generate_assertion(body.spec, api_key=custom_key)
+        else:
+            result = await generate_assertion(body.spec)
     except RuntimeError as e:  # e.g. missing API key
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:  # upstream or validation failure after retries

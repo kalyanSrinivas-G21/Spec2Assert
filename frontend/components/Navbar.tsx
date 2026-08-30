@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Cpu, Terminal, ExternalLink, ShieldCheck, GitCommit } from "lucide-react";
 
 interface NavbarProps {
@@ -15,7 +16,7 @@ export default function Navbar({ isSynthesizing = false }: NavbarProps) {
   return (
     <header className="h-12 border-b border-zinc-800 bg-zinc-950 px-4 flex items-center justify-between text-xs font-mono select-none">
       {/* Left: Branding & Breadcrumbs */}
-      <div className="flex items-center gap-3">
+      <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
         <div className="w-6 h-6 bg-blue-600 text-black flex items-center justify-center font-bold font-mono text-sm">
           S2A
         </div>
@@ -26,7 +27,7 @@ export default function Navbar({ isSynthesizing = false }: NavbarProps) {
           <span className="text-zinc-600">/</span>
           <span className="text-blue-500 font-medium">v1.2.0-deterministic</span>
         </div>
-      </div>
+      </Link>
 
       {/* Center: System Status Indicator */}
       <div className="hidden md:flex items-center gap-4 text-zinc-400">

@@ -45,13 +45,13 @@ FREE_FALLBACK_MODELS = [
 ]
 
 
-def create_agent(model_name: str) -> Agent:
-    api_key = os.getenv("OPENROUTER_API_KEY")
-    if not api_key:
+def create_agent(model_name: str, api_key: str | None = None) -> Agent:
+    key = api_key or os.getenv("OPENROUTER_API_KEY")
+    if not key:
         raise RuntimeError("OPENROUTER_API_KEY is not configured")
     model = ChatModel(
         model_name,
-        provider=OpenAIProvider(base_url="https://openrouter.ai/api/v1", api_key=api_key),
+        provider=OpenAIProvider(base_url="https://openrouter.ai/api/v1", api_key=key),
     )
     try:
         return Agent(model, output_type=AssertionResult, system_prompt=SYSTEM_PROMPT, retries=2)
@@ -60,9 +60,15 @@ def create_agent(model_name: str) -> Agent:
 
 
 @lru_cache(maxsize=8)
-def get_agent(model_name: str | None = None) -> Agent:
+def _cached_get_agent(model_name: str) -> Agent:
+    return create_agent(model_name)
+
+
+def get_agent(model_name: str | None = None, api_key: str | None = None) -> Agent:
     target = model_name or os.getenv("MODEL_NAME", "nvidia/nemotron-3.5-lightning:free")
-    return create_agent(target)
+    if api_key:
+        return create_agent(target, api_key=api_key)
+    return _cached_get_agent(target)
 
 
 def _clean_markdown_fences(code: str) -> str:
@@ -73,7 +79,7 @@ def _clean_markdown_fences(code: str) -> str:
     return cleaned.strip()
 
 
-async def generate_assertion(spec: str) -> AssertionResult:
+async def generate_assertion(spec: str, api_key: str | None = None, **kwargs) -> AssertionResult:
     # If MOCK_LLM is enabled or mock mode requested
     if os.getenv("MOCK_LLM", "false").lower() in ("true", "1", "yes"):
         return _mock_assertion(spec)
@@ -87,7 +93,7 @@ async def generate_assertion(spec: str) -> AssertionResult:
 
     for m in models_to_try:
         try:
-            agent = get_agent(m)
+            agent = get_agent(m, api_key=api_key)
             result = await agent.run(
                 f'Protocol rule:\n"{spec}"',
                 model_settings={"temperature": 0.0},
