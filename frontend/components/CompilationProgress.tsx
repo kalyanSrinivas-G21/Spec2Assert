@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Terminal, Cpu, Check, Activity } from "lucide-react";
+import ThinkingPolygon from "./ThinkingPolygon";
 
 const PIPELINE_STAGES = [
   { label: "SIGNAL_BUS_EXTRACTION", detail: "Resolving port list, wires, and bus widths...", duration: 400 },
@@ -47,41 +48,9 @@ export default function CompilationProgress() {
         </div>
       </div>
 
-      {/* Middle: Oscilloscope Digital Logic Waveform */}
-      <div className="my-6 border border-zinc-900 bg-black p-4 flex flex-col gap-3 relative overflow-hidden">
-        {/* Scanning laser beam overlay */}
-        <div 
-          className="absolute inset-y-0 w-28 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent pointer-events-none animate-wave-sweep" 
-        />
-
-        <div className="flex items-center justify-between text-[10px] text-zinc-500 border-b border-zinc-900 pb-1">
-          <span>DIGITAL_TIMING_TRACE</span>
-          <span>CH1: CLK | CH2: ANTECEDENT | CH3: ASSERTION_CAPTURE</span>
-        </div>
-
-        {/* CLK Signal */}
-        <div className="flex items-center gap-3">
-          <span className="w-12 text-[10px] text-zinc-500">CLK</span>
-          <svg className="w-full h-5 stroke-blue-500 fill-none stroke-[1.5]" preserveAspectRatio="none" viewBox="0 0 200 20">
-            <path d="M0,18 L10,18 L10,2 L20,2 L20,18 L30,18 L30,2 L40,2 L40,18 L50,18 L50,2 L60,2 L60,18 L70,18 L70,2 L80,2 L80,18 L90,18 L90,2 L100,2 L100,18 L110,18 L110,2 L120,2 L120,18 L130,18 L130,2 L140,2 L140,18 L150,18 L150,2 L160,2 L160,18 L170,18 L170,2 L180,2 L180,18 L190,18 L190,2 L200,2" />
-          </svg>
-        </div>
-
-        {/* VALID / ANTECEDENT Signal */}
-        <div className="flex items-center gap-3">
-          <span className="w-12 text-[10px] text-zinc-500">TRIG</span>
-          <svg className="w-full h-5 stroke-indigo-400 fill-none stroke-[1.5]" preserveAspectRatio="none" viewBox="0 0 200 20">
-            <path d="M0,18 L40,18 L40,2 L100,2 L100,18 L200,18" />
-          </svg>
-        </div>
-
-        {/* EVAL / SVA Signal (Hunting & Locking) */}
-        <div className="flex items-center gap-3">
-          <span className="w-12 text-[10px] text-zinc-500">ASSERT</span>
-          <svg className="w-full h-5 stroke-amber-400 fill-none stroke-[1.5] stroke-dasharray-[4,2]" preserveAspectRatio="none" viewBox="0 0 200 20">
-            <path d="M0,18 L100,18 L100,2 L160,2 L160,18 L200,18" />
-          </svg>
-        </div>
+      {/* Middle: AI-Native Thinking Polygon Visualization */}
+      <div className="my-4">
+        <ThinkingPolygon />
       </div>
 
       {/* Bottom: Pipeline Execution Stepper */}
