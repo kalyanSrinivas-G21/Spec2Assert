@@ -43,6 +43,8 @@ export const generate = (spec: string) =>
     body: JSON.stringify({ spec }),
   });
 
+export const generateAssertion = generate;
+
 export const getHistory = () => request<HistoryItem[]>("/api/history");
 
 export const getHistoryItem = (id: number) =>

@@ -15,19 +15,24 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Spec2Assert | Deterministic Hardware Verification Workbench",
   description:
-    "Deterministic engine compiling natural-language hardware interface specifications into formal SystemVerilog Assertions (SVA) and cocotb testbenches.",
+    "Deterministic EDA engine compiling natural-language hardware interface specifications into formal SystemVerilog Assertions (SVA) and executable cocotb testbenches.",
   icons: {
     icon: "/favicon.ico",
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className="dark">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white`}
+      >
+        {children}
+      </body>
     </html>
   );
 }
