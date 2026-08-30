@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import ApiKeyModal from "@/components/ApiKeyModal";
 import HeroWorkbenchMockup from "@/components/HeroWorkbenchMockup";
+import HeroAnimation from "@/components/HeroAnimation";
 import {
   ArrowRight,
   Play,
@@ -273,17 +274,6 @@ export default function LandingPage() {
       className="min-h-screen flex flex-col text-zinc-100 selection:bg-blue-600 selection:text-white"
       style={{ background: "#09090b" }}
     >
-      {/* Ambient top radial glow — no canvas, pure CSS */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-x-0 top-0 z-0"
-        style={{
-          height: "60vh",
-          background:
-            "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0,102,255,0.12), transparent 80%)",
-        }}
-      />
-
       <ApiKeyModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
 
       {/* ── Navbar ─────────────────────────────────────────────────────────── */}
@@ -349,7 +339,24 @@ export default function LandingPage() {
 
       {/* ── Hero ────────────────────────────────────────────────────────────── */}
       <main className="relative z-10 flex-1 flex flex-col">
-        <section className="max-w-6xl mx-auto w-full px-6 pt-16 pb-20 flex flex-col items-center gap-8 text-center">
+        {/* Hero wrapper: relative container so animation is scoped to hero only */}
+        <div className="relative overflow-hidden">
+          {/* Signal-to-Assertion synthesis animation — behind all content */}
+          <HeroAnimation />
+
+          {/* Ambient electric-blue top glow — sits above animation, below content */}
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 pointer-events-none"
+            style={{
+              height: "65%",
+              zIndex: 1,
+              background:
+                "radial-gradient(ellipse 90% 55% at 50% -5%, rgba(0,102,255,0.11), transparent 75%)",
+            }}
+          />
+
+          <section className="relative z-10 max-w-6xl mx-auto w-full px-6 pt-16 pb-20 flex flex-col items-center gap-8 text-center">
           {/* Announcement pill */}
           <a
             href="#architecture"
@@ -422,6 +429,7 @@ export default function LandingPage() {
             ))}
           </div>
         </section>
+        </div>{/* end hero wrapper */}
 
         {/* ── Architecture Pipeline ──────────────────────────────────────────── */}
         <section
