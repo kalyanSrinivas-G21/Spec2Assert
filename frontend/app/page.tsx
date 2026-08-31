@@ -577,7 +577,7 @@ export default function LandingPage() {
           >
             S2A
           </div>
-          <span>Spec2Assert · Built for PurpleCodeAI Recruitment Benchmark</span>
+          <span>Spec2Assert · Deterministic AI Hardware Assertion Workbench</span>
         </div>
         <div className="flex items-center gap-4">
           <span>Next.js 16</span>
