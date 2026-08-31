@@ -43,7 +43,14 @@ function cleanCodeFences(code: string): string {
     cleaned = cleaned.replace(/^```(?:[a-zA-Z0-9_-]+)?\s*\n?/, "");
     cleaned = cleaned.replace(/\n?```\s*$/, "");
   }
-  return cleaned.trim();
+  if (cleaned.includes("\\n")) {
+    cleaned = cleaned
+      .replace(/\\r\\n/g, "\n")
+      .replace(/\\n/g, "\n")
+      .replace(/\\t/g, "    ")
+      .replace(/\\"/g, '"');
+  }
+  return cleaned.replace(/\r\n/g, "\n").trim();
 }
 
 function runChecks(r: {

@@ -76,6 +76,13 @@ def _clean_markdown_fences(code: str) -> str:
     if cleaned.startswith("```"):
         cleaned = re.sub(r"^```(?:[a-zA-Z0-9_-]+)?\s*\n?", "", cleaned)
         cleaned = re.sub(r"\n?```\s*$", "", cleaned)
+    if "\\n" in cleaned:
+        cleaned = (
+            cleaned.replace("\\r\\n", "\n")
+            .replace("\\n", "\n")
+            .replace("\\t", "    ")
+            .replace('\\"', '"')
+        )
     return cleaned.strip()
 
 

@@ -12,12 +12,24 @@ export default function CodeTabs({ svaCode, pythonCode }: CodeTabsProps) {
   const [activeTab, setActiveTab] = useState<"sva" | "python">("sva");
   const [copied, setCopied] = useState(false);
 
-  // Clean code and strip stray markdown code fences
+  // Clean code, unescape literal newlines, and strip stray markdown code fences
   const cleanCode = (code: string) => {
-    return code
+    if (!code) return "";
+    let cleaned = code
       .replace(/^```[a-zA-Z0-9_-]*\s*\n?/, "")
       .replace(/\n?```\s*$/, "")
       .trim();
+
+    // If string has literal '\n' characters instead of real newlines (e.g. from JSON output)
+    if (cleaned.includes("\\n")) {
+      cleaned = cleaned
+        .replace(/\\r\\n/g, "\n")
+        .replace(/\\n/g, "\n")
+        .replace(/\\t/g, "    ")
+        .replace(/\\"/g, '"');
+    }
+
+    return cleaned.replace(/\r\n/g, "\n");
   };
 
   const currentCode = cleanCode(activeTab === "sva" ? svaCode : pythonCode);
@@ -121,7 +133,7 @@ export default function CodeTabs({ svaCode, pythonCode }: CodeTabsProps) {
                   {idx + 1}
                 </td>
                 <td className="whitespace-pre pl-2 text-zinc-300 font-mono">
-                  {renderLine(line, activeTab === "sva")}
+                  {line.length === 0 ? "\u00A0" : renderLine(line, activeTab === "sva")}
                 </td>
               </tr>
             ))}
