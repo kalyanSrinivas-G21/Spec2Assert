@@ -101,7 +101,6 @@ Spec2Assert/
 │
 ├── PROMPTS.md                     # Versioned prompt engineering & evaluation log
 ├── render.yaml                    # Production backend deployment configuration
-├── vercel.json                    # Production frontend deployment configuration
 └── README.md                      # Project documentation
 ```
 
