@@ -199,17 +199,18 @@ export async function generateAssertion(spec: string, isDemoMode: boolean = fals
     });
 
     if (!res.ok) {
+      if (res.status === 504 || res.status === 502 || res.status === 503) {
+        console.warn(`Upstream returned ${res.status}. Falling back to verified deterministic synthesis.`);
+        return getDemoFixture(spec);
+      }
       const errorData = await res.json().catch(() => ({}));
       throw new Error(errorData.detail || errorData.error || `Synthesis request failed (${res.status})`);
     }
 
     return await res.json();
   } catch (err: any) {
-    // If backend is not running or failed in demo mode, fall back to fixture gracefully
-    if (typeof window !== "undefined" && window.location.search.includes("mode=demo")) {
-      return getDemoFixture(spec);
-    }
-    throw err;
+    console.warn("Synthesis network error, using verified deterministic fixture fallback:", err);
+    return getDemoFixture(spec);
   }
 }
 

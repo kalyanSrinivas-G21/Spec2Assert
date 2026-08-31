@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { inMemoryHistory } from "../_store";
 import { getDemoFixture } from "@/lib/api";
 
+export const maxDuration = 60;
+
 const FREE_MODELS = [
   "nvidia/nemotron-3.5-lightning:free",
   "cohere/north-mini-code:free",
-  "minimax/minimax-m3.1-flash:free",
   "google/gemma-4-31b-it:free",
-  "meta-llama/llama-3.3-70b-instruct",
 ];
 
 const SYSTEM_PROMPT = `You are a senior hardware verification engineer.
@@ -109,8 +109,14 @@ export async function POST(request: NextRequest) {
 
     if (customKey && customKey.trim().length > 5) {
       const apiKey = customKey.trim();
+      const startTime = Date.now();
 
       for (const model of FREE_MODELS) {
+        // Enforce total time ceiling of 14s to never exceed Vercel gateway timeout
+        if (Date.now() - startTime > 14000) {
+          break;
+        }
+
         try {
           const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
@@ -120,6 +126,7 @@ export async function POST(request: NextRequest) {
               "HTTP-Referer": "https://spec2assert.vercel.app",
               "X-Title": "Spec2Assert",
             },
+            signal: AbortSignal.timeout(8500),
             body: JSON.stringify({
               model,
               messages: [
@@ -141,7 +148,7 @@ export async function POST(request: NextRequest) {
             }
           }
         } catch {
-          // Try next model in fallback cascade
+          // Timeout or rate limit, cascade to next fallback
         }
       }
     }
