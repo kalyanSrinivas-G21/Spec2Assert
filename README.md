@@ -284,6 +284,21 @@ Returns service status and active prompt iteration version.
 
 ---
 
+## Deployment
+
+### Frontend (Vercel)
+1. Import the repository on [Vercel](https://vercel.com).
+2. Under **Project Settings > General > Root Directory**, click **Edit** and set it to `frontend`.
+3. Set the Environment Variable:
+   - `NEXT_PUBLIC_API_URL`: Your deployed FastAPI backend URL (e.g. `https://spec2assert-api.onrender.com`).
+4. Deploy.
+
+### Backend (Render)
+1. Create a new Web Service on [Render](https://render.com) using the included `render.yaml`.
+2. Configure `OPENROUTER_API_KEY` in the Render environment variables.
+
+---
+
 ## Contributing
 
 Contributions, feedback, and experiment ideas are welcome! To contribute:
