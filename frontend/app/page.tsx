@@ -315,7 +315,7 @@ export default function LandingPage() {
         {/* Right actions */}
         <div className="flex items-center gap-3">
           <a
-            href="https://github.com"
+            href="https://github.com/kalyanSrinivas-G21/Spec2Assert"
             target="_blank"
             rel="noreferrer"
             className="hidden sm:flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-100 transition-colors"
